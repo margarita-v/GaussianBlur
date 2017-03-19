@@ -5,7 +5,9 @@
 from PyQt5 import uic
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import Qt, QDir, QEvent
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QLabel, QMessageBox
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QFileDialog, 
+        QLabel, QMessageBox, QInputDialog)
+import GaussianFilter
 
 class Window(QMainWindow):
 
@@ -15,7 +17,10 @@ class Window(QMainWindow):
 
     def initUI(self):
         uic.loadUi("mainwindow.ui", self)
-
+        
+        self.lblSecondImage.setVisible(False)
+        self.actionRun.triggered.connect(self.getSolve)
+        self.actionRun.setShortcut('Ctrl+R')
         self.actionOpen.triggered.connect(self.openDialog)
         self.actionOpen.setShortcut('Ctrl+O')
         self.actionSave.triggered.connect(self.saveDialog)
@@ -34,20 +39,20 @@ class Window(QMainWindow):
                 "Images (*.png *.jpg)")
         if filename:
             self.menuTask.setEnabled(True)
-            image = QImage(filename)
-            if image.isNull():
+            self.image = QImage(filename)
+            if self.image.isNull():
                 QMessageBox.information(self, "Image Viewer",
                         "Cannot load %s." % fileName)
                 return
 
-            self.pixmap = QPixmap.fromImage(image)
+            self.pixmap = QPixmap.fromImage(self.image)
             # отображаем изображение, сохраняя его пропорции, не теряя качества
             self.scaledPixmap = self.pixmap.scaled(self.lblFirstImage.size(), \
                     Qt.KeepAspectRatio, \
                     Qt.SmoothTransformation)
             self.lblFirstImage.setPixmap(self.scaledPixmap)
-            self.lblFirstImage.installEventFilter(self)            
-            self.lblSecondImage.setPixmap(self.scaledPixmap)
+            self.lblFirstImage.installEventFilter(self)
+            
             self.lblSecondImage.installEventFilter(self)
    
     # диалог для сохранения изображения, полученного после применения алгоритма
@@ -63,7 +68,13 @@ class Window(QMainWindow):
                     Qt.KeepAspectRatio, \
                     Qt.SmoothTransformation))
         return super(Window, self).eventFilter(source, event)
-
+   
+    # применение размытия по Гауссу к исходному изображению
+    def getSolve(self):
+        radius, ok = QInputDialog.getInt(self, 'Input dialog', 'Enter blur radius:', 2, 1, 10)
+        if (ok):
+            GaussianFilter.solve(radius, self.image)
+            self.lblSecondImage.setVisible(True)
 
 if __name__ == '__main__':
     
