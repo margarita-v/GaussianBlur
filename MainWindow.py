@@ -40,19 +40,21 @@ class Window(QMainWindow):
         if filename:
             self.menuTask.setEnabled(True)
             self.image = QImage(filename)
+            self.resultImage = None
             if self.image.isNull():
                 QMessageBox.information(self, "Image Viewer",
                         "Cannot load %s." % fileName)
                 return
 
+            self.lblSecondImage.setVisible(False)
             self.pixmap = QPixmap.fromImage(self.image)
             # отображаем изображение, сохраняя его пропорции, не теряя качества
             self.scaledPixmap = self.pixmap.scaled(self.lblFirstImage.size(), \
                     Qt.KeepAspectRatio, \
                     Qt.SmoothTransformation)
             self.lblFirstImage.setPixmap(self.scaledPixmap)
-            self.lblFirstImage.installEventFilter(self)
             
+            self.lblFirstImage.installEventFilter(self)
             self.lblSecondImage.installEventFilter(self)
    
     # диалог для сохранения изображения, полученного после применения алгоритма
@@ -62,22 +64,31 @@ class Window(QMainWindow):
     # событие изменения размера изображения
     def eventFilter(self, source, event):
         # масштабируем изображение на основе нового размера компонента
-        if ((source is self.lblFirstImage or source is self.lblSecondImage) \
-                and event.type() == QEvent.Resize):
-            source.setPixmap(self.pixmap.scaled(source.size(), \
-                    Qt.KeepAspectRatio, \
-                    Qt.SmoothTransformation))
+        pixmap = QPixmap()
+        if (source is self.lblFirstImage):
+            pixmap = self.pixmap
+        elif (source is self.lblSecondImage and self.resultImage != None):
+            pixmap = QPixmap.fromImage(self.resultImage)
+        else:
+            return super(Window, self).eventFilter(source, event)
+        source.setPixmap(pixmap.scaled(source.size(), \
+                Qt.KeepAspectRatio, \
+                Qt.SmoothTransformation))
         return super(Window, self).eventFilter(source, event)
    
     # применение размытия по Гауссу к исходному изображению
     def getSolve(self):
-        radius, ok = QInputDialog.getInt(self, 'Input dialog', 'Enter blur radius:', 2, 1, 10)
+        radius, ok = QInputDialog.getInt(self, 'Input dialog', 'Enter blur radius:', 5, 5, 20)
         if (ok):
-            GaussianFilter.solve(radius, self.image)
+            self.resultImage = GaussianFilter.solve(radius, self.image)
+            pixmap = QPixmap.fromImage(self.resultImage)
+            scaledPixmap = pixmap.scaled(self.lblSecondImage.size(), \
+                    Qt.KeepAspectRatio, \
+                    Qt.SmoothTransformation)
+            self.lblSecondImage.setPixmap(scaledPixmap)
             self.lblSecondImage.setVisible(True)
 
 if __name__ == '__main__':
-    
     import sys
     app = QApplication(sys.argv)
     window = Window()
