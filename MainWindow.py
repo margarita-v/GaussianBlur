@@ -78,9 +78,13 @@ class Window(QMainWindow):
    
     # применение размытия по Гауссу к исходному изображению
     def getSolve(self):
-        radius, ok = QInputDialog.getInt(self, 'Input dialog', 'Enter blur radius:', 5, 5, 20)
+        radius, ok = QInputDialog.getInt(self, 'Input dialog', \
+                'Enter blur radius:', 1, 1, 18)
         if (ok):
-            self.resultImage = GaussianFilter.solve(radius, self.image)
+            # копируем в результат исходное изображение
+            self.resultImage = QImage(self.image)
+            # передаем изображение по ссылке и применяем к нему фильтр
+            GaussianFilter.solve(radius, self.resultImage)
             pixmap = QPixmap.fromImage(self.resultImage)
             scaledPixmap = pixmap.scaled(self.lblSecondImage.size(), \
                     Qt.KeepAspectRatio, \
