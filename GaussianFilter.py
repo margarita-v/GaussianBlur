@@ -25,17 +25,26 @@ def getMatrix(R, sigma):
 # применение фильтра Гаусса к изображению
 def solve(R, sigma, image):
     getMatrix(R, sigma)
-    for i in range (11, 100):
-        for j in range (11, 100):
-            #image.setPixelColor(i, j, QColor(qRgb(0, 0, 0)))
+    for i in range(image.width()):
+        for j in range(image.height()):
             changePixelColor(image, i, j, R)
 
 # изменение цвета пикселя средним значением соседних пикселей
 def changePixelColor(image, x, y, R):
     result = QColor()
+    width = image.width()
+    height = image.height()
     for i in range(-R, R + 1):
         for j in range (-R, R + 1):
-            pixel = image.pixel(x + i, y + j)
+            # берем текущий пиксель, если координаты выходят за размеры изображения
+            x_current = x + i
+            y_current = y + j
+            if (x_current < 0 or x_current >= width):
+                x_current = x
+            if (y_current < 0 or y_current >= height):
+                y_current = y
+            # берем цвет текущего пикселя и домножаем его компоненты на элемент матрицы
+            pixel = image.pixel(x_current, y_current)
             color = QColor(pixel)
             changeColor(color, matrix[i][j]) 
             addColor(result, color)
@@ -43,12 +52,12 @@ def changePixelColor(image, x, y, R):
 
 # изменение значения цвета путем умножения его компонент на заданный коэффициент
 def changeColor(color, k):
-    color.setRedF(color.redF() * k)
-    color.setGreenF(color.greenF() * k)
-    color.setBlueF(color.blueF() * k)
+    color.setRed(color.red() * k)
+    color.setGreen(color.green() * k)
+    color.setBlue(color.blue() * k)
 
 # добавление нового цвета к сумме измененных цветов
 def addColor(result, secondColor):
-    result.setRedF(result.redF() + secondColor.redF())
-    result.setGreenF(result.greenF() + secondColor.greenF())
-    result.setBlueF(result.blueF() + secondColor.blueF())
+    result.setRed(result.red() + secondColor.red())
+    result.setGreen(result.green() + secondColor.green())
+    result.setBlue(result.blue() + secondColor.blue())

@@ -54,7 +54,7 @@ class Window(QMainWindow):
                     Qt.KeepAspectRatio, \
                     Qt.SmoothTransformation)
             self.lblFirstImage.setPixmap(self.scaledPixmap)
-            
+            # событие, которое вызывается при масштабировании изображения
             self.lblFirstImage.installEventFilter(self)
             self.lblSecondImage.installEventFilter(self)
    
@@ -65,6 +65,7 @@ class Window(QMainWindow):
     # событие изменения размера изображения
     def eventFilter(self, source, event):
         # масштабируем изображение на основе нового размера компонента
+        # устанавливаем разные pixmap для разных изображений
         pixmap = QPixmap()
         if (source is self.lblFirstImage):
             pixmap = self.pixmap
@@ -90,6 +91,7 @@ class Window(QMainWindow):
             scaledPixmap = pixmap.scaled(self.lblSecondImage.size(), \
                     Qt.KeepAspectRatio, \
                     Qt.SmoothTransformation)
+            # отображаем новое изображение на компоненте
             self.lblSecondImage.setPixmap(scaledPixmap)
             self.lblSecondImage.setVisible(True)
 
