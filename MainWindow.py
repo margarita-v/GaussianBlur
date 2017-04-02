@@ -6,8 +6,9 @@ from PyQt5 import uic
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import Qt, QDir, QEvent
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QFileDialog, 
-        QLabel, QMessageBox, QInputDialog)
+        QLabel, QMessageBox, QInputDialog, QDialog)
 import GaussianFilter
+from Dialog import InputDialog
 
 class Window(QMainWindow):
 
@@ -78,13 +79,13 @@ class Window(QMainWindow):
    
     # применение размытия по Гауссу к исходному изображению
     def getSolve(self):
-        radius, ok = QInputDialog.getInt(self, 'Input dialog', \
-                'Enter blur radius:', 1, 1, 18)
-        if (ok):
+        dialog = InputDialog() 
+        result = dialog.exec_()
+        if (result == QDialog.Accepted):
             # копируем в результат исходное изображение
             self.resultImage = QImage(self.image)
             # передаем изображение по ссылке и применяем к нему фильтр
-            GaussianFilter.solve(radius, self.resultImage)
+            GaussianFilter.solve(dialog.radius, dialog.sigma, self.resultImage)
             pixmap = QPixmap.fromImage(self.resultImage)
             scaledPixmap = pixmap.scaled(self.lblSecondImage.size(), \
                     Qt.KeepAspectRatio, \
