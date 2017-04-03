@@ -46,7 +46,7 @@ def changePixelColor(image, x, y, R):
             # берем цвет текущего пикселя и домножаем его компоненты на элемент матрицы
             pixel = image.pixel(x_current, y_current)
             color = QColor(pixel)
-            changeColor(color, matrix[i][j]) 
+            changeColor(color, matrix[i + R][j + R]) 
             addColor(result, color)
     image.setPixelColor(x, y, result)
 
