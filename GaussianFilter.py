@@ -2,12 +2,14 @@
 
 from PyQt5.QtGui import QImage, qRgb, QColor
 from math import pi, exp, sqrt
+import numpy as np
 
 # вычисление матрицы Гаусса
 def getMatrix(R, sigma):
-    global matrix
+    global matrix, horizontal, vertical
     matrix_size = 2*R + 1
     matrix = [[0 for x in range(matrix_size)] for y in range(matrix_size)]
+    horizontal = [0 for x in range(matrix_size)]
     total_sum = 0
     C = 1 / (2*pi*sigma**2)
     divider = 2*sigma**2
@@ -16,11 +18,22 @@ def getMatrix(R, sigma):
         for j in range(-R, R + 1):
             matrix[i + R][j + R] = C * exp(-(i**2 + j**2) / divider) 
             total_sum += matrix[i + R][j + R]
+
     mult = 1 / total_sum
     # домножаем элементы матрицы, чтобы сумма элементов была равна 1
     for i in range(matrix_size):
         for j in range(matrix_size):
             matrix[i][j] *= mult
+
+    # вычисляем два вектора по формуле одномерного Гауссова распределения 
+    total_sum = 0
+    C = 1 / (sqrt(2*pi)*sigma)
+    for i in range(-R, R + 1):
+        horizontal[i + R] = C * exp(-(i**2) / divider)
+        total_sum += horizontal[i + R]
+    for i in range(-R, R + 1):
+        horizontal[i + R] /= total_sum
+    vertical = np.vstack(horizontal)
 
 # применение фильтра Гаусса к изображению
 def solve(R, sigma, image):

@@ -22,4 +22,8 @@ class InputDialog(QDialog):
         self.close()
 
     def radiusChanged(self):
-        self.dsbSigma.setMinimum(self.sbRadius.value())
+        radius = self.sbRadius.value()
+        if radius == 1:
+            self.dsbSigma.setMinimum(0.5)
+        else:
+            self.dsbSigma.setMinimum(radius)
