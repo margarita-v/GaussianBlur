@@ -8,7 +8,8 @@ from PyQt5.QtCore import Qt, QDir, QEvent
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QFileDialog, 
         QLabel, QMessageBox, QDialog)
 from Dialog import InputDialog
-import GaussianFilter
+from GaussianFilter import solve
+from threading import Thread
 import os
 
 pictures_folder = 'pictures'
@@ -92,7 +93,8 @@ class Window(QMainWindow):
             # копируем в результат исходное изображение
             self.resultImage = QImage(self.image)
             # передаем изображение по ссылке и применяем к нему фильтр
-            GaussianFilter.solve(dialog.radius, dialog.sigma, self.resultImage)
+            thread = Thread(target=solve, args=(dialog.radius, dialog.sigma, self.resultImage))
+            thread.start()
             pixmap = QPixmap.fromImage(self.resultImage)
             scaledPixmap = pixmap.scaled(self.lblSecondImage.size(),
                     Qt.KeepAspectRatio,

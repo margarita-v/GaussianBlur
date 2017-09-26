@@ -2,6 +2,7 @@
 
 from PyQt5.QtGui import QImage, qRgb, QColor
 from math import pi, exp, sqrt
+from threading import Thread
 
 # Модуль для размытия по Гауссу
 # Используется сепарабельность Гауссова размытия
@@ -24,14 +25,33 @@ def getVector(R, sigma):
 
 # применение фильтра Гаусса к изображению
 def solve(R, sigma, image):
-    getVector(R, sigma)
+    thread = Thread(target=getVector, args=(R, sigma))
+    thread.start()
     width = image.width()
     height = image.height()
     # первый проход - горизонтальное размытие
+    t1 = Thread(target=horizontal, args=(width, height, image, R))
+    t1.start()
+    t1.join()
+    #for j in range(height):
+     #   for i in range(width):
+      #      t1 = Thread(target=changePixelColor, args=(image, i, j, True, R))
+       #     t1.start()
+    # второй проход - вертикальное размытие
+    t2 = Thread(target=vertical, args=(width, height, image, R))
+    t2.start()
+    #for i in range(width):
+     #   for j in range(height):
+      #      t2 = Thread(target=changePixelColor, args=(image, i, j, False, R))
+       #     t2.start()
+
+def horizontal(width, height, image, R):
     for j in range(height):
         for i in range(width):
             changePixelColor(image, i, j, True, R)
-    # второй проход - вертикальное размытие
+
+
+def vertical(width, height, image, R):
     for i in range(width):
         for j in range(height):
             changePixelColor(image, i, j, False, R)
