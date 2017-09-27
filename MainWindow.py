@@ -95,11 +95,12 @@ class Window(QMainWindow):
             # передаем изображение по ссылке и применяем к нему фильтр
             thread = Thread(target=solve, args=(dialog.radius, dialog.sigma, self.resultImage))
             thread.start()
+            thread.join()
+            # отображаем новое изображение на компоненте
             pixmap = QPixmap.fromImage(self.resultImage)
             scaledPixmap = pixmap.scaled(self.lblSecondImage.size(),
-                    Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation)
-            # отображаем новое изображение на компоненте
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation)
             self.lblSecondImage.setPixmap(scaledPixmap)
             self.lblSecondImage.setVisible(True)
             self.actionSave.setEnabled(True)
